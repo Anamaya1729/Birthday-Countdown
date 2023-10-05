@@ -28,7 +28,7 @@ const birthday = document.querySelector(".birthday")
 const deadline = document.querySelector(".deadline")
 const time = document.querySelectorAll(".deadline-format h4")
 
-let pastDate = new Date(2022,10,27,00,00,0)
+let pastDate = new Date(2023,10,27,00,00,0)
 const year = pastDate.getFullYear()
 const hour = pastDate.getHours()
 const minutes = pastDate.getMinutes()
