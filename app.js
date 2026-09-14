@@ -28,17 +28,32 @@ const birthday = document.querySelector(".birthday")
 const deadline = document.querySelector(".deadline")
 const time = document.querySelectorAll(".deadline-format h4")
 
-let pastDate = new Date(2023,10,27,00,00,0)
-const year = pastDate.getFullYear()
-const hour = pastDate.getHours()
-const minutes = pastDate.getMinutes()
-const month = pastDate.getMonth()
-const date = pastDate.getDate()
-const day = pastDate.getDay()
-birthday.innerText = `My birthday is on ${weekdays[day]} ${date} ${months[month]}, ${year} 0${hour}:0${minutes}am`
+// 2026-09-14: this was hardcoded to 27 November 2023, so the page had spent
+// three years saying the birthday was "expired". The date is fixed; the YEAR is
+// not, so it is worked out each load: this year's if it is still ahead of us,
+// otherwise next year's. Nothing to maintain and it can never expire again.
+const BIRTH_MONTH = 10   // November, zero-indexed the way Date wants it
+const BIRTH_DAY = 27
 
-// future time in ms
-const futureTime = pastDate.getTime()
+function nextBirthday() {
+  const now = new Date()
+  let d = new Date(now.getFullYear(), BIRTH_MONTH, BIRTH_DAY, 0, 0, 0)
+  // Strictly in the past means we want next year's. On the day itself the
+  // countdown is allowed to sit at zero rather than jumping a whole year.
+  if (d.getTime() < now.getTime() - 24 * 60 * 60 * 1000) {
+    d = new Date(now.getFullYear() + 1, BIRTH_MONTH, BIRTH_DAY, 0, 0, 0)
+  }
+  return d
+}
+
+const target = nextBirthday()
+const year = target.getFullYear()
+const month = target.getMonth()
+const date = target.getDate()
+const day = target.getDay()
+birthday.innerText = `My birthday is on ${weekdays[day]} ${date} ${months[month]}, ${year}`
+
+const futureTime = target.getTime()
 
 function getRemainingTime()
 {
@@ -67,11 +82,13 @@ function getRemainingTime()
     }
     time.innerHTML = format(values[index])
   })
+  // On the day itself, say so instead of counting down past zero. The next
+  // load rolls the target to next year on its own.
   if (diff < 0)
   {
+    time.forEach((t) => { t.innerHTML = "00" })
     clearInterval(countdown)
-    deadline.innerHTML = `<h4 class= "expired"> sorry this birthday is expired wait for it next year
-    </h4>`
+    deadline.innerHTML = `<h4 class="today">It is today. You had a whole year of warning.</h4>`
   }
 }
 
